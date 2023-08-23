@@ -23,86 +23,41 @@ public class Main {
         }).start();
 
         new Thread(() -> {
-            int count = 0;
-            int number = 0;
-
-
-            char charA = 'a';
-
-            for (int i = 0; i < 10_000; i++) {
-                int countLine = 0;
-                String text;
-                try {
-                    text = searchA.take();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                for (int j = 0; j < text.length(); j++) {
-                    if (text.charAt(j) == charA) {
-                        countLine++;
-                    }
-                }
-                if (countLine > count) {
-                    count = countLine;
-                    number = i;
-                }
-            }
-            System.out.format("Строка %d, количество A - %d\n", number, count);
+            counter('a', searchA);
         }).start();
 
         new Thread(() -> {
-            int count = 0;
-            int number = 0;
-
-            char charA = 'b';
-
-            for (int i = 0; i < 10_000; i++) {
-                int countLine = 0;
-                String text;
-                try {
-                    text = searchB.take();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                for (int j = 0; j < text.length(); j++) {
-                    if (text.charAt(j) == charA) {
-                        countLine++;
-                    }
-                }
-                if (countLine > count) {
-                    count = countLine;
-                    number = i;
-                }
-            }
-            System.out.format("Строка %d, количество B - %d\n", number, count);
+            counter('b', searchB);
         }).start();
 
         new Thread(() -> {
-            int count = 0;
-            int number = 0;
+            counter('c', searchC);
+        }).start();
+    }
 
-            char charA = 'c';
+    private static void counter(char charA, BlockingQueue<String> queue) {
+        int count = 0;
+        int number = 0;
 
-            for (int i = 0; i < 10_000; i++) {
-                int countLine = 0;
-                String text;
-                try {
-                    text = searchC.take();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                for (int j = 0; j < text.length(); j++) {
-                    if (text.charAt(j) == charA) {
-                        countLine++;
-                    }
-                }
-                if (countLine > count) {
-                    count = countLine;
-                    number = i;
+        for (int i = 0; i < 10_000; i++) {
+            int countLine = 0;
+            String text;
+            try {
+                text = queue.take();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            for (int j = 0; j < text.length(); j++) {
+                if (text.charAt(j) == charA) {
+                    countLine++;
                 }
             }
-            System.out.format("Строка %d, количество C - %d\n", number, count);
-        }).start();
+            if (countLine > count) {
+                count = countLine;
+                number = i;
+            }
+        }
+        System.out.format("Строка %d, количество " + charA + " - %d\n", number, count);
     }
 
     public static String generateText(String letters, int length) {
